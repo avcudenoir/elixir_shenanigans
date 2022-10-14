@@ -2,7 +2,7 @@ defmodule TextClient.Impl.Player do
   @typep game :: Hangman.game()
   @typep tally :: Hangman.tally()
 
-  @typep state :: {game, tally}
+  # @typep state :: {game, tally}
 
   @spec start :: :ok
   def start() do
@@ -30,12 +30,26 @@ defmodule TextClient.Impl.Player do
   end
 
   @spec interact({game, tally}) :: :ok
-  def interact({_game, tally}) do
+  def interact({game, tally}) do
     IO.puts(feedback_for(tally))
-    # display current word
-    # get next guess
-    # make move
+    IO.puts(current_word(tally))
 
-    # interact()
+    Hangman.make_move(game, get_guess())
+    |> interact()
+  end
+
+  def current_word(tally) do
+    """
+    Word so far: #{tally.letters |> Enum.join(" ")}
+      #{IO.ANSI.format([:green, "turns left"])}: #{IO.ANSI.format([:cyan, tally.turns_left |> to_string])}
+      #{IO.ANSI.format([:green, "used so far"])}: #{IO.ANSI.format([:yellow, tally.used |> Enum.join(",")])}
+    """
+  end
+
+  @spec get_guess :: binary
+  def get_guess() do
+    IO.gets("Next letter: ")
+    |> String.trim()
+    |> String.downcase()
   end
 end
